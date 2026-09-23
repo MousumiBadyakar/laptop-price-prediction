@@ -31,11 +31,6 @@ The trained model is integrated with a Streamlit web application that provides a
 - Scikit-learn
 - Streamlit
 
-## 📊 Model Performance
-
-- R² Score: 84.56%
-- MAE: €186.49
-
 ## ✨ Features
 
 - Laptop price prediction
