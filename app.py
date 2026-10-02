@@ -5,10 +5,6 @@ import pickle
 import joblib
 from tensorflow.keras.models import load_model
 
-# ----------------------------------
-# Load model and preprocessing files
-# ----------------------------------
-
 model = load_model("laptop_price_model.keras")
 
 with open("model_columns.pkl", "rb") as f:
@@ -19,11 +15,6 @@ with open("dropdowns.pkl", "rb") as f:
 
 scaler = joblib.load("laptop_price_scaler.pkl")
 
-
-# ----------------------------------
-# Streamlit Page Configuration
-# ----------------------------------
-
 st.set_page_config(
     page_title="Laptop Price Predictor",
     page_icon="💻",
@@ -32,11 +23,6 @@ st.set_page_config(
 
 st.title("💻 Laptop Price Prediction")
 st.write("Enter laptop specifications to estimate its price.")
-
-
-# ----------------------------------
-# User Inputs
-# ----------------------------------
 
 st.subheader("🔧 Laptop Specifications")
 
@@ -68,7 +54,6 @@ with col1:
         "Operating System",
         dropdowns["OpSys"]
     )
-
 
 with col2:
 
@@ -109,11 +94,6 @@ with col2:
         step=0.1
     )
 
-
-# ----------------------------------
-# Prediction
-# ----------------------------------
-
 if st.button("🔮 Predict Price"):
 
     input_data = {
@@ -131,38 +111,51 @@ if st.button("🔮 Predict Price"):
 
     input_df = pd.DataFrame([input_data])
 
-    # One-hot encoding
     encoded_df = pd.get_dummies(input_df)
 
-    # Make columns exactly the same as training data
     encoded_df = encoded_df.reindex(
         columns=model_columns,
         fill_value=0
     )
 
-    # Scale numerical features
     numerical_features = ["Inches", "Ram", "Weight"]
 
     encoded_df[numerical_features] = scaler.transform(
         encoded_df[numerical_features]
     )
 
-    # Prediction
     prediction = model.predict(encoded_df, verbose=0)[0][0]
 
-    st.success(
-        f"💰 Estimated Laptop Price: €{prediction:,.2f}"
+    st.markdown("---")
+
+    st.subheader("💰 Prediction")
+
+    st.metric(
+        label="Estimated Laptop Price",
+        value=f"€{prediction:,.2f}"
     )
+
+    st.subheader("💻 Laptop Summary")
+
+    summary_col1, summary_col2 = st.columns(2)
+
+    with summary_col1:
+        st.write(f"**Brand:** {company}")
+        st.write(f"**Type:** {type_name}")
+        st.write(f"**CPU:** {cpu}")
+        st.write(f"**GPU:** {gpu}")
+        st.write(f"**Operating System:** {os}")
+
+    with summary_col2:
+        st.write(f"**RAM:** {ram} GB")
+        st.write(f"**Screen Size:** {inches}\"")
+        st.write(f"**SSD:** {ssd} GB")
+        st.write(f"**HDD:** {hdd} GB")
+        st.write(f"**Weight:** {weight} kg")
 
     st.caption(
         "⚠️ Prediction is based on historical data and may vary."
     )
-
-
-
-# ----------------------------------
-# Footer
-# ----------------------------------
 
 st.markdown("---")
 
